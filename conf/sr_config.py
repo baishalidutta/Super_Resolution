@@ -3,7 +3,6 @@ __copyright__ = "Copyright (C) 2022 Baishali Dutta"
 __license__ = "Apache License 2.0"
 __version__ = "0.1"
 
-# import the necessary packages
 import os
 
 # define the path to the input images we will be using to build the
