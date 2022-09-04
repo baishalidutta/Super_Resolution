@@ -10,8 +10,8 @@ from tensorflow.keras.models import Sequential
 
 class DCGAN:
     @staticmethod
-    def build_generator(dim, depth, channels=1, inputDim=100,
-                        outputDim=512):
+    def build_generator(dim, depth, channels=1, input_dim=100,
+                        output_dim=512):
         # initialize the model along with the input shape to be
         # "channels last" and the channels dimension itself
         model = Sequential()
@@ -19,7 +19,7 @@ class DCGAN:
         chanDim = -1
 
         # first set of FC => RELU => BN layers
-        model.add(Dense(input_dim=inputDim, units=outputDim))
+        model.add(Dense(input_dim=input_dim, units=output_dim))
         model.add(Activation("relu"))
         model.add(BatchNormalization())
 
