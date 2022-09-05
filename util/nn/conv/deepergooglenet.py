@@ -12,7 +12,7 @@ from tensorflow.keras.regularizers import l2
 
 class DeeperGoogLeNet:
     @staticmethod
-    def conv_module(x, K, kX, kY, stride, chanDim,
+    def conv_module(x, K, kx, ky, stride, chan_dim,
                     padding="same", reg=0.0005, name=None):
         # initialize the CONV, BN, and RELU layer names
         (convName, bnName, actName) = (None, None, None)
@@ -24,9 +24,9 @@ class DeeperGoogLeNet:
             actName = name + "_act"
 
         # define a CONV => BN => RELU pattern
-        x = Conv2D(K, (kX, kY), strides=stride, padding=padding,
+        x = Conv2D(K, (kx, ky), strides=stride, padding=padding,
                    kernel_regularizer=l2(reg), name=convName)(x)
-        x = BatchNormalization(axis=chanDim, name=bnName)(x)
+        x = BatchNormalization(axis=chan_dim, name=bnName)(x)
         x = Activation("relu", name=actName)(x)
 
         # return the block
@@ -34,36 +34,36 @@ class DeeperGoogLeNet:
 
     @staticmethod
     def inception_module(x, num1x1, num3x3Reduce, num3x3,
-                         num5x5Reduce, num5x5, num1x1Proj, chanDim, stage,
+                         num5x5_reduce, num5x5, num1x1_proj, chan_dim, stage,
                          reg=0.0005):
         # define the first branch of the Inception module which
         # consists of 1x1 convolutions
         first = DeeperGoogLeNet.conv_module(x, num1x1, 1, 1,
-                                            (1, 1), chanDim, reg=reg, name=stage + "_first")
+                                            (1, 1), chan_dim, reg=reg, name=stage + "_first")
 
         # define the second branch of the Inception module which
         # consists of 1x1 and 3x3 convolutions
         second = DeeperGoogLeNet.conv_module(x, num3x3Reduce, 1, 1,
-                                             (1, 1), chanDim, reg=reg, name=stage + "_second1")
+                                             (1, 1), chan_dim, reg=reg, name=stage + "_second1")
         second = DeeperGoogLeNet.conv_module(second, num3x3, 3, 3,
-                                             (1, 1), chanDim, reg=reg, name=stage + "_second2")
+                                             (1, 1), chan_dim, reg=reg, name=stage + "_second2")
 
         # define the third branch of the Inception module which
         # are our 1x1 and 5x5 convolutions
-        third = DeeperGoogLeNet.conv_module(x, num5x5Reduce, 1, 1,
-                                            (1, 1), chanDim, reg=reg, name=stage + "_third1")
+        third = DeeperGoogLeNet.conv_module(x, num5x5_reduce, 1, 1,
+                                            (1, 1), chan_dim, reg=reg, name=stage + "_third1")
         third = DeeperGoogLeNet.conv_module(third, num5x5, 5, 5,
-                                            (1, 1), chanDim, reg=reg, name=stage + "_third2")
+                                            (1, 1), chan_dim, reg=reg, name=stage + "_third2")
 
         # define the fourth branch of the Inception module which
         # is the POOL projection
         fourth = MaxPooling2D((3, 3), strides=(1, 1),
                               padding="same", name=stage + "_pool")(x)
-        fourth = DeeperGoogLeNet.conv_module(fourth, num1x1Proj,
-                                             1, 1, (1, 1), chanDim, reg=reg, name=stage + "_fourth")
+        fourth = DeeperGoogLeNet.conv_module(fourth, num1x1_proj,
+                                             1, 1, (1, 1), chan_dim, reg=reg, name=stage + "_fourth")
 
         # concatenate across the channel dimension
-        x = concatenate([first, second, third, fourth], axis=chanDim,
+        x = concatenate([first, second, third, fourth], axis=chan_dim,
                         name=stage + "_mixed")
 
         # return the block
