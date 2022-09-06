@@ -8,16 +8,16 @@ from tensorflow.keras.layers import Dropout, Flatten, Dense
 
 class FCHeadNet:
     @staticmethod
-    def build(baseModel, classes, D):
+    def build(base_model, classes, D):
         # initialize the head model that will be placed on top of
         # the base, then add a FC layer
-        headModel = baseModel.output
-        headModel = Flatten(name="flatten")(headModel)
-        headModel = Dense(D, activation="relu")(headModel)
-        headModel = Dropout(0.5)(headModel)
+        head_model = base_model.output
+        head_model = Flatten(name="flatten")(head_model)
+        head_model = Dense(D, activation="relu")(head_model)
+        head_model = Dropout(0.5)(head_model)
 
         # add a softmax layer
-        headModel = Dense(classes, activation="softmax")(headModel)
+        head_model = Dense(classes, activation="softmax")(head_model)
 
         # return the model
-        return headModel
+        return head_model
