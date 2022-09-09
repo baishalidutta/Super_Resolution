@@ -12,53 +12,53 @@ from tensorflow.keras.applications.vgg19 import preprocess_input
 
 
 class NeuralStyle(Model):
-    def __init__(self, styleLayers, contentLayers):
+    def __init__(self, style_layers, content_layers):
         # call the parent constructor
         super(NeuralStyle, self).__init__()
 
         # construct our network with the given set of layers
-        self.vgg = self.vggLayers(styleLayers + contentLayers)
+        self.vgg = self.vggLayers(style_layers + content_layers)
 
         # store the style layers, content layers, the number of style
         # layers, then set our network to non-trainable (if it is not
         # set already)
-        self.styleLayers = styleLayers
-        self.contentLayers = contentLayers
-        self.numStyleLayers = len(styleLayers)
+        self.style_layers = style_layers
+        self.content_layers = content_layers
+        self.num_style_layers = len(style_layers)
         self.vgg.trainable = False
 
     def call(self, inputs):
         # scale the pixel values of the image back to the [0, 255]
         # range and preprocess them
         inputs = inputs * 255.0
-        preprocessedInput = preprocess_input(inputs)
+        preprocessed_input = preprocess_input(inputs)
 
         # run the preprocessed image through our network and grab the
         # style and content outputs
-        outputs = self.vgg(preprocessedInput)
-        (styleOutputs, contentOutputs) = (
-            outputs[:self.numStyleLayers],
-            outputs[self.numStyleLayers:])
+        outputs = self.vgg(preprocessed_input)
+        (style_outputs, content_outputs) = (
+            outputs[:self.num_style_layers],
+            outputs[self.num_style_layers:])
 
         # compute the gram matrix between the  different style outputs
-        styleOutputs = [self.gramMatrix(styleOutput)
-                        for styleOutput in styleOutputs]
+        style_outputs = [self.gramMatrix(style_output)
+                         for style_output in style_outputs]
 
         # loop over the content layers (and their corresponding
         # outputs) and prepare a dictionary
-        contentDict = {contentName: value
-                       for contentName, value
-                       in zip(self.contentLayers, contentOutputs)}
+        content_dict = {content_name: value
+                        for content_name, value
+                        in zip(self.content_layers, content_outputs)}
 
         # loop over the style layers (and their corresponding outputs)
         # and prepare a dictionary
-        styleDict = {styleName: value
-                     for styleName, value
-                     in zip(self.styleLayers, styleOutputs)}
+        style_dict = {styleName: value
+                      for styleName, value
+                      in zip(self.styleLayers, style_outputs)}
 
         # return a dictionary containing the style features, and the
         # content features
-        return {"content": contentDict, "style": styleDict}
+        return {"content": content_dict, "style": style_dict}
 
     @staticmethod
     def vggLayers(layerNames):
@@ -75,49 +75,49 @@ class NeuralStyle(Model):
         return model
 
     @staticmethod
-    def gramMatrix(inputTensor):
+    def gramMatrix(input_tensor):
         # the gram matrix is the dot product between the input vectors
         # and their respective transpose
         result = tf.linalg.einsum("bijc,bijd->bcd",
-                                  inputTensor, inputTensor)
-        inputShape = tf.shape(inputTensor)
-        locations = tf.cast(inputShape[1] * inputShape[2],
+                                  input_tensor, input_tensor)
+        input_shape = tf.shape(input_tensor)
+        locations = tf.cast(input_shape[1] * input_shape[2],
                             tf.float32)
 
         # return normalized gram matrix
         return (result / locations)
 
     @staticmethod
-    def styleContentLoss(outputs, styleTargets, contentTargets,
-                         styleWeight, contentWeight):
+    def styleContentLoss(outputs, style_targets, content_targets,
+                         style_weight, content_weight):
         # extract the style and content outputs respectively
-        styleOutputs = outputs["style"]
-        contentOutputs = outputs["content"]
+        style_outputs = outputs["style"]
+        content_outputs = outputs["content"]
 
         # iterate over each of the style layers, grab their outputs,
         # and determine the mean-squared error with respect to the
         # original style content
-        styleLoss = [tf.reduce_mean((
-                                            styleOutputs[name] - styleTargets[name]) ** 2)
-                     for name in styleOutputs.keys()]
+        style_loss = [tf.reduce_mean((
+                                             style_outputs[name] - style_targets[name]) ** 2)
+                      for name in style_outputs.keys()]
 
         # add the individual style layer losses and normalize them
-        styleLoss = tf.add_n(styleLoss)
-        styleLoss *= styleWeight
+        style_loss = tf.add_n(style_loss)
+        style_loss *= style_weight
 
         # iterate over each content layers, grab their outputs, and
         # determine the mean-squared error with respect to the
         # original  image content
-        contentLoss = [tf.reduce_mean((contentOutputs[name] -
-                                       contentTargets[name]) ** 2)
-                       for name in contentOutputs.keys()]
+        contentLoss = [tf.reduce_mean((content_outputs[name] -
+                                       content_targets[name]) ** 2)
+                       for name in content_outputs.keys()]
 
         # add the indvidual content layer losses and normalize them
-        contentLoss = tf.add_n(contentLoss)
-        contentLoss *= contentWeight
+        content_loss = tf.add_n(contentLoss)
+        content_loss *= content_weight
 
         # add the final style and content losses
-        loss = styleLoss + contentLoss
+        loss = style_loss + content_loss
 
         # return the combined loss
         return loss
