@@ -50,13 +50,13 @@ class HDF5DatasetWriter:
         self.idx = i
         self.buffer = {"data": [], "labels": []}
 
-    def storeClassLabels(self, class_labels):
+    def store_class_cabels(self, class_labels):
         # create a dataset to store the actual class label names,
         # then store the class labels
         dt = h5py.special_dtype(vlen=str)  # `vlen=unicode` for Py2.7
-        labelSet = self.db.create_dataset("label_names",
+        label_set = self.db.create_dataset("label_names",
                                           (len(class_labels),), dtype=dt)
-        labelSet[:] = class_labels
+        label_set[:] = class_labels
 
     def close(self):
         # check to see if there are any other entries in the buffer
