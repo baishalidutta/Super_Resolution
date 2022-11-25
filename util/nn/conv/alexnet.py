@@ -15,8 +15,8 @@ class AlexNet:
         # initialize the model along with the input shape to be
         # "channels last" and the channels dimension itself
         model = Sequential()
-        inputShape = (height, width, depth)
-        chanDim = -1
+        input_shape = (height, width, depth)
+        chan_dim = -1
 
         # if we are using "channels first", update the input shape
         # and channels dimension
@@ -26,10 +26,10 @@ class AlexNet:
 
         # Block #1: first CONV => RELU => POOL layer set
         model.add(Conv2D(96, (11, 11), strides=(4, 4),
-                         input_shape=inputShape, padding="same",
+                         input_shape=input_shape, padding="same",
                          kernel_regularizer=l2(reg)))
         model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
+        model.add(BatchNormalization(axis=chan_dim))
         model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
         model.add(Dropout(0.25))
 
@@ -37,7 +37,7 @@ class AlexNet:
         model.add(Conv2D(256, (5, 5), padding="same",
                          kernel_regularizer=l2(reg)))
         model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
+        model.add(BatchNormalization(axis=chan_dim))
         model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
         model.add(Dropout(0.25))
 
@@ -45,15 +45,15 @@ class AlexNet:
         model.add(Conv2D(384, (3, 3), padding="same",
                          kernel_regularizer=l2(reg)))
         model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
+        model.add(BatchNormalization(axis=chan_dim))
         model.add(Conv2D(384, (3, 3), padding="same",
                          kernel_regularizer=l2(reg)))
         model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
+        model.add(BatchNormalization(axis=chan_dim))
         model.add(Conv2D(256, (3, 3), padding="same",
                          kernel_regularizer=l2(reg)))
         model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
+        model.add(BatchNormalization(axis=chan_dim))
         model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
         model.add(Dropout(0.25))
 
