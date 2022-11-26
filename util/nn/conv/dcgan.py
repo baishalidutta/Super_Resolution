@@ -15,8 +15,8 @@ class DCGAN:
         # initialize the model along with the input shape to be
         # "channels last" and the channels dimension itself
         model = Sequential()
-        inputShape = (dim, dim, depth)
-        chanDim = -1
+        input_shape = (dim, dim, depth)
+        chan_dim = -1
 
         # first set of FC => RELU => BN layers
         model.add(Dense(input_dim=input_dim, units=output_dim))
@@ -31,11 +31,11 @@ class DCGAN:
 
         # reshape the output of the previous layer set, upsample +
         # apply a transposed convolution, RELU, and BN
-        model.add(Reshape(inputShape))
+        model.add(Reshape(input_shape))
         model.add(Conv2DTranspose(32, (5, 5), strides=(2, 2),
                                   padding="same"))
         model.add(Activation("relu"))
-        model.add(BatchNormalization(axis=chanDim))
+        model.add(BatchNormalization(axis=chan_dim))
 
         # apply another upsample and transposed convolution, but
         # this time output the TANH activation
@@ -51,11 +51,11 @@ class DCGAN:
         # initialize the model along with the input shape to be
         # "channels last"
         model = Sequential()
-        inputShape = (height, width, depth)
+        input_shape = (height, width, depth)
 
         # first set of CONV => RELU layers
         model.add(Conv2D(32, (5, 5), padding="same", strides=(2, 2),
-                         input_shape=inputShape))
+                         input_shape=input_shape))
         model.add(LeakyReLU(alpha=alpha))
 
         # second set of CONV => RELU layers
