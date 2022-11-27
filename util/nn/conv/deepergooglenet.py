@@ -15,19 +15,19 @@ class DeeperGoogLeNet:
     def conv_module(x, K, kx, ky, stride, chan_dim,
                     padding="same", reg=0.0005, name=None):
         # initialize the CONV, BN, and RELU layer names
-        (convName, bnName, actName) = (None, None, None)
+        (conv_name, bn_name, act_name) = (None, None, None)
 
         # if a layer name was supplied, prepend it
         if name is not None:
-            convName = name + "_conv"
-            bnName = name + "_bn"
-            actName = name + "_act"
+            conv_name = name + "_conv"
+            bn_name = name + "_bn"
+            act_name = name + "_act"
 
         # define a CONV => BN => RELU pattern
         x = Conv2D(K, (kx, ky), strides=stride, padding=padding,
-                   kernel_regularizer=l2(reg), name=convName)(x)
-        x = BatchNormalization(axis=chan_dim, name=bnName)(x)
-        x = Activation("relu", name=actName)(x)
+                   kernel_regularizer=l2(reg), name=conv_name)(x)
+        x = BatchNormalization(axis=chan_dim, name=bn_name)(x)
+        x = Activation("relu", name=act_name)(x)
 
         # return the block
         return x
