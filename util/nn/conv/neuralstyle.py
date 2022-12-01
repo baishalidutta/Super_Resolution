@@ -61,7 +61,7 @@ class NeuralStyle(Model):
         return {"content": content_dict, "style": style_dict}
 
     @staticmethod
-    def vggLayers(layerNames):
+    def vgg_layers(layerNames):
         # load our model from disk and set it non-trainable
         vgg = VGG19(include_top=False, weights="imagenet")
         vgg.trainable = False
@@ -75,7 +75,7 @@ class NeuralStyle(Model):
         return model
 
     @staticmethod
-    def gramMatrix(input_tensor):
+    def gram_matrix(input_tensor):
         # the gram matrix is the dot product between the input vectors
         # and their respective transpose
         result = tf.linalg.einsum("bijc,bijd->bcd",
@@ -88,7 +88,7 @@ class NeuralStyle(Model):
         return (result / locations)
 
     @staticmethod
-    def styleContentLoss(outputs, style_targets, content_targets,
+    def style_content_loss(outputs, style_targets, content_targets,
                          style_weight, content_weight):
         # extract the style and content outputs respectively
         style_outputs = outputs["style"]
