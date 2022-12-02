@@ -61,14 +61,14 @@ class NeuralStyle(Model):
         return {"content": content_dict, "style": style_dict}
 
     @staticmethod
-    def vgg_layers(layerNames):
+    def vgg_layers(layer_names):
         # load our model from disk and set it non-trainable
         vgg = VGG19(include_top=False, weights="imagenet")
         vgg.trainable = False
 
         # construct a list of outputs of the specified layers, and then
         # create the model
-        outputs = [vgg.get_layer(name).output for name in layerNames]
+        outputs = [vgg.get_layer(name).output for name in layer_names]
         model = Model([vgg.input], outputs)
 
         # return the model
@@ -85,11 +85,11 @@ class NeuralStyle(Model):
                             tf.float32)
 
         # return normalized gram matrix
-        return (result / locations)
+        return result / locations
 
     @staticmethod
     def style_content_loss(outputs, style_targets, content_targets,
-                         style_weight, content_weight):
+                           style_weight, content_weight):
         # extract the style and content outputs respectively
         style_outputs = outputs["style"]
         content_outputs = outputs["content"]
