@@ -123,7 +123,7 @@ class NeuralStyle(Model):
         return loss
 
     @staticmethod
-    def clipPixels(image):
+    def clip_pixels(image):
         # clip any pixel values in the image falling outside the
         # range [0, 1] and return the image
         return tf.clip_by_value(image,
@@ -131,7 +131,7 @@ class NeuralStyle(Model):
                                 clip_value_max=1.0)
 
     @staticmethod
-    def tensorToImage(tensor):
+    def tensor_to_image(tensor):
         # scale pixels back to the range [0, 255] and convert the
         # the data type of the pixels to integer
         tensor = tensor * 255
