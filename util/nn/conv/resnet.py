@@ -58,18 +58,18 @@ class ResNet:
               reg=0.0001, bn_eps=2e-5, bn_mom=0.9, dataset="cifar"):
         # initialize the input shape to be "channels last" and the
         # channels dimension itself
-        inputShape = (height, width, depth)
-        chanDim = -1
+        input_shape = (height, width, depth)
+        chan_dim = -1
 
         # if we are using "channels first", update the input shape
         # and channels dimension
         if K.image_data_format() == "channels_first":
-            inputShape = (depth, height, width)
-            chanDim = 1
+            input_shape = (depth, height, width)
+            chan_dim = 1
 
         # set the input and apply BN
-        inputs = Input(shape=inputShape)
-        x = BatchNormalization(axis=chanDim, epsilon=bn_eps,
+        inputs = Input(shape=input_shape)
+        x = BatchNormalization(axis=chan_dim, epsilon=bn_eps,
                                momentum=bn_mom)(inputs)
 
         # check if we are utilizing the CIFAR dataset
@@ -83,7 +83,7 @@ class ResNet:
             # apply CONV => BN => ACT => POOL to reduce spatial size
             x = Conv2D(filters[0], (5, 5), use_bias=False,
                        padding="same", kernel_regularizer=l2(reg))(x)
-            x = BatchNormalization(axis=chanDim, epsilon=bn_eps,
+            x = BatchNormalization(axis=chan_dim, epsilon=bn_eps,
                                    momentum=bn_mom)(x)
             x = Activation("relu")(x)
             x = ZeroPadding2D((1, 1))(x)
@@ -95,16 +95,16 @@ class ResNet:
             # used to reduce the spatial size of the input volume
             stride = (1, 1) if i == 0 else (2, 2)
             x = ResNet.residual_module(x, filters[i + 1], stride,
-                                       chanDim, red=True, bnEps=bn_eps, bnMom=bn_mom)
+                                       chan_dim, red=True, bnEps=bn_eps, bnMom=bn_mom)
 
             # loop over the number of layers in the stage
             for j in range(0, stages[i] - 1):
                 # apply a ResNet module
                 x = ResNet.residual_module(x, filters[i + 1],
-                                           (1, 1), chanDim, bnEps=bn_eps, bnMom=bn_mom)
+                                           (1, 1), chan_dim, bnEps=bn_eps, bnMom=bn_mom)
 
         # apply BN => ACT => POOL
-        x = BatchNormalization(axis=chanDim, epsilon=bn_eps,
+        x = BatchNormalization(axis=chan_dim, epsilon=bn_eps,
                                momentum=bn_mom)(x)
         x = Activation("relu")(x)
         x = AveragePooling2D((8, 8))(x)
